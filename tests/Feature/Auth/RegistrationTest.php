@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -32,14 +33,20 @@ class RegistrationTest extends TestCase
 
     public function test_registration_requires_a_unique_email()
     {
+        User::factory()->create(['email' => 'user@example.com']);
+        
         $response = $this->post('/register', [
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'user@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-        ]);
+        ])->assertSessionHasErrors(); // Latest
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(RouteServiceProvider::HOME);
+        // $response->assertSessionHasErrors();
+
+        $this->assertGuest();
+
+        // $this->assertAuthenticated();
+        // $response->assertRedirect(RouteServiceProvider::HOME);
     }
 }
